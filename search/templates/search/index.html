@@ -1,0 +1,62 @@
+{% extends "search/base.html" %}
+{% load static %}
+
+{% block title %}
+Wheat Gene Function
+{% endblock title %}
+
+
+{% block content %}
+<img src='{% static "search/banner.jpg" %}' class="img-fluid" alt="Responsive image">
+<hr>
+
+{% if warning %}
+<div class="alert alert-warning" role="alert">
+    {{ warning }}
+</div>
+{% endif %}
+
+<section id="about" class="about-mf sect-pt4 route">
+    <div class="container">
+        <div class="row justify-content-center align-self-center">
+
+            <div class="col-md-6">
+                <div class="about-me pt-4 pt-md-0">
+                    <p class="lead">
+                        <strong>Wheat Embryo Expression Database (WEEdb)</strong> is comprised of RNAseq data of 59
+                        samples across 22 time points from
+                        2 days after pollination (DAP) to 38 DAP for embryo tissue and 23 samples from roots, leaves,
+                        flowers and shell.
+                    </p>
+                    <p class="lead">
+                        Input wheat gene ids in the right box and submit, you can find out:
+                    </p>
+                    <li class="lead">
+                        The Expression Level across Embryo development of these genes
+                    </li>
+                    <li class="lead">
+                        The neighbouring lncRNA of these genes
+                    </li>
+                    <br>
+                    <p class="lead">
+                        So if that's what you need, have a try.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="search-box">
+                    <p class="lead">
+                        example: TraesCS1A02G285700
+                    </p>
+                    <form action="{% url 'search:search-results' 'exp' %}" method="post">
+                        {{ form.as_p }}
+                        {% csrf_token %}
+                        <input type="submit" value="Try Your Luck">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

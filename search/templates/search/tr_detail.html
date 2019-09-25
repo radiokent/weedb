@@ -1,0 +1,100 @@
+{% extends "search/base.html" %}
+
+{% block title %}
+Gene detail
+{% endblock title %}
+
+{% block content %}
+<div class="table-responsive">
+    <table class="table table-borderless" width='50%'>
+        <thead>
+            <tr>
+                <th style="width: 15%"></th>
+                <th scope="col" class="col-auto"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row" class="bg-light">Transcript</th>
+                <td>{{ tr_inf.tr_id }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Location</th>
+                <td>{{tr_inf.tr_chrom}}: {{tr_inf.tr_start}}-{{tr_inf.tr_end}} {{tr_inf.tr_strand}} strand</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Gene</th>
+                <td><a href="{{ tr_inf.gene_id.get_absolute_url }}">{{ tr_inf.gene_id }}</a></td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Gene Type</th>
+                <td>
+                    {% for g_type in tr_inf.gene_id.gene_type.all %}
+                    {{ g_type.gene_biotype }}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Description</th>
+                <td>{{ tr_inf.tr_des}}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">GO</th>
+                <td style="white-space:pre-wrap; word-wrap:break-word">{{ tr_inf.tr_go }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">PFAM</th>
+                <td style="white-space:pre-wrap; word-wrap:break-word">{{ tr_inf.tr_pfam }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">InterPro</th>
+                <td style="white-space:pre-wrap; word-wrap:break-word">{{ tr_inf.tr_interpro }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">
+                    <a href="{% if tr_inf.tr_neighbor_obj %}
+                        {% url 'search:search_neighbor' tr_inf.tr_id %}
+                        {% else %}
+                        #
+                        {% endif %}">Neighbours (within
+                        100kb)</a>
+                </th>
+                <td>
+                    {% for nb in tr_inf.tr_neighbor_obj %}
+                    <a href="{{ nb.get_absolute_url }}">{{ nb.gene_id }}</a>
+                    {% empty %}
+                    None
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Statistics</th>
+                <td>
+                    {% if tr_inf.exon_inf %}
+                    <strong>Exons</strong>: {{ tr_inf.exon_inf.e_count }},
+                    <strong>Transcript length</strong>: {{ tr_inf.exon_inf.e_len }}
+                    {% endif %}
+                    {% if tr_inf.cds_inf %}
+                    , <strong>Coding Exons</strong>: {{ tr_inf.cds_inf.c_count }}
+                    <strong>CDS length</strong>: {{tr_inf.cds_inf.c_len}}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Exon sequence</th>
+                <td style="word-wrap:break-word" class="text-monospace">
+                    {% for seq in tr_inf.exon_fa %}{{seq.seq}}</br>{% endfor %}
+                </td>
+            </tr>
+            {% if tr_inf.cds_fa.exists %}
+            <tr>
+                <th scope="row" class="bg-light">CDS sequence</th>
+                <td style="word-wrap:break-word" class="text-monospace">
+                    {% for seq in tr_inf.cds_fa %}{{seq.seq}}</br>{% endfor %}
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

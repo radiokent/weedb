@@ -1,0 +1,105 @@
+{% extends "search/base.html" %}
+
+{% block title %}
+Gene detail
+{% endblock title %}
+
+
+{% block content %}
+<div class="table-responsive">
+    <table class="table table-borderless" width='50%'>
+        <thead>
+            <tr>
+                <th style="width: 15%"></th>
+                <th scope="col" class="col-auto"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row" class="bg-light">Gene</th>
+                <td>{{ tr_inf.gene_id }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Location</th>
+                <td>{{tr_inf.gene_chrom}}: {{tr_inf.gene_start}}-{{tr_inf.gene_end}} {{tr_inf.gene_strand}} strand</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Gene Type</th>
+                <td>
+                    {% for g_type in tr_inf.gene_type.all %}
+                    {{ g_type.gene_biotype }}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Description</th>
+                <td>{{ tr_inf.gene_description }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">GO</th>
+                <td style="white-space:pre-wrap; word-wrap:break-word">{{ tr_inf.gene_go }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">PFAM</th>
+                <td style="white-space:pre-wrap; word-wrap:break-word">{{ tr_inf.gene_pfam }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">InterPro</th>
+                <td style="white-space:pre-wrap; word-wrap:break-word">{{ tr_inf.gene_interpro }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Transcripts</th>
+                <td>
+                    {% for tr in tr_inf.transcript.all %}
+                    <a href="{{ tr.get_absolute_url }}">{{ tr }}</a>
+                    {% empty %}
+                    None
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">
+                    <a href="{% url 'search:search_neighbor' tr_inf.gene_id %}">Neighbours (within
+                        100kb)</a>
+                </th>
+                <td>
+                    {% for nb in tr_inf.gene_neighbor_obj %}
+                    <a href="{{ nb.get_absolute_url }}">{{ nb.gene_id }}</a>
+                    {% empty %}
+                    None
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light"><a
+                        href="{% url 'search:single_gene_exp_view' tr_inf.gene_id %}">Expression</a></th>
+                <td>Max TPM: {{tr_inf.exp_inf.max_tpm}} in
+                    <strong>{{tr_inf.exp_inf.max_tissue}}</strong>,
+                    Min TPM: {{tr_inf.exp_inf.min_tpm}} in
+                    <strong>{{tr_inf.exp_inf.min_tissue}}</strong>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light">Representative Exon sequence</th>
+                <td style="word-wrap:break-word" class="text-monospace">
+                    {% with tr_inf.repr_tr as repr_tr  %}
+                    {% for seq in repr_tr.exon_fa %}{{seq.seq}}</br>{% endfor %}
+                    {% endwith %}
+                </td>
+            </tr>
+            <tr>
+                {% with tr_inf.repr_tr as repr_tr %}
+                {% if repr_tr.cds_fa.exists %}
+            <tr>
+                <th scope="row" class="bg-light">Representative CDS sequence</th>
+                <td style="word-wrap:break-word" class="text-monospace">
+                    {% for seq in repr_tr.cds_fa %}{{seq.seq}}</br>{% endfor %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endwith %}
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

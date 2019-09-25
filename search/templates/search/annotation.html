@@ -1,0 +1,25 @@
+{% extends "search/base.html" %}
+
+{% load render_table from django_tables2 %}
+
+{% block title %}
+Wheat embryo expression
+{% endblock title %}
+
+{% block content %}
+
+{% if ann_inf.exists %}
+
+<br>
+<section id="gene-ann">
+    {% render_table ann_table %}
+</section>
+
+{% else %}
+<hr>
+<div class="alert alert-warning" role="alert">
+    Nothing Found, Please check your input gene list.
+</div>
+{% endif %}
+
+{% endblock content %}

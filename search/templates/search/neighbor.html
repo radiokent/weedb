@@ -1,0 +1,56 @@
+{% extends "search/base.html" %}
+{% load static %}
+{% load render_table from django_tables2 %}
+
+
+{% block title %}
+Wheat embryo expression
+{% endblock title %}
+
+{% block content %}
+
+
+<hr>
+
+{% if neighbor_inf.exists %}
+
+
+<section id="gene-neighbor">
+    {% render_table neighbor_table %}
+</section>
+
+<div id="container" style="width: 1200px; height: 400px; margin: 0 auto"></div>
+<script src="https://code.highcharts.com/highcharts.src.js"></script>
+<script>
+    Highcharts.chart('container', {
+        chart: {
+            type: 'line',
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            categories: {{ tissues| safe }}
+      },
+        yAxis: {
+        title: { text: 'TPM' },
+    },
+        series: {{ exp_values| safe }}
+  });
+</script>
+
+
+<hr>
+<div class="text-center">
+    <img src='{% static "search/classification_genic.png" %}' class="img-responsive" width="1200px"  alt="classification_genic">
+    <img src='{% static "search/classification_intergenic.png" %}' class="img-responsive" width="1200px"  alt="classification_intergenic">
+</div>
+
+{% else %}
+
+<div class="alert alert-warning" role="alert">
+    Neighbour not found for {{ gene_name }}.
+</div>
+{% endif %}
+
+{% endblock content %}

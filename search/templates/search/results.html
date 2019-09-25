@@ -1,0 +1,43 @@
+{% extends "search/base.html" %}
+
+{% load render_table from django_tables2 %}
+
+{% block title %}
+Wheat embryo expression
+{% endblock title %}
+
+{% block content %}
+
+{% if gene_exp.exists %}
+<br>
+
+{% render_table exp_table %}
+
+<div id="container" style="width: 1200px; height: 400px; margin: 0 auto"></div>
+<script src="https://code.highcharts.com/highcharts.src.js"></script>
+<script>
+    Highcharts.chart('container', {
+        chart: {
+            type: 'line',
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            categories: {{ tissues| safe }}
+      },
+        yAxis: {
+        title: { text: 'TPM' },
+    },
+        series: {{ exp_values| safe }}
+  });
+</script>
+
+{% else %}
+<hr>
+<div class="alert alert-warning" role="alert">
+    Nothing Found, Please check your input gene list.
+</div>
+{% endif %}
+
+{% endblock content %}

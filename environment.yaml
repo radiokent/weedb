@@ -1,0 +1,25 @@
+name: testw
+channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge
+  - conda-forge
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+  - defaults
+dependencies:
+  - django=2.2.5=py37_0
+  - postgresql=11.5
+  - pip=19.2.3=py37_0
+  - python=3.7.3
+  - pip:
+    - click==7.0
+    - django-bootstrap3==11.1.0
+    - django-bootstrap4==1.0.1
+    - django-filter==2.2.0
+    - django-tables2==2.1.0
+    - ipython==7.8.0
+    - numpy==1.17.2
+    - pandas==0.25.1
+    - tablib==0.13.0
+
