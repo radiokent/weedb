@@ -1,7 +1,5 @@
 {% extends "search/base.html" %}
 
-{% load render_table from django_tables2 %}
-
 {% block title %}
 Wheat embryo expression
 {% endblock title %}
@@ -11,9 +9,48 @@ Wheat embryo expression
 {% if gene_exp.exists %}
 <br>
 
-{% render_table exp_table %}
+<div class="container" id="exp-table">
+    <table id="example" class="ui celled table" style="width:100%">
+    <thead>
+        <tr>
+            <th>Gene-ID</th>
+            <th>Tissue</th>
+            <th>Tpm</th>
+            <th>Description</th>
+            <th>Gene-Neighbours</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for exp_i in gene_exp %}
+        <tr>
+        <td><a href="{{ exp_i.gene_id.get_absolute_url }}">{{ exp_i.gene_id }}</a></td>
+        <td>{{ exp_i.tissue }}</td>
+        <td>{{ exp_i.tpm }}</td>
+        <td>{{ exp_i.gene_id.gene_description }}</td>
+        <td><a href="{% url 'search:search_neighbor' exp_i.gene_id.gene_id %}">{{ exp_i.gene_id.gene_neighbor_num }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
 
-<div id="container" style="width: 1200px; height: 400px; margin: 0 auto"></div>
+<script>
+        $(document).ready(function() {
+            var table = $('#example').DataTable( {
+                lengthChange: false,
+                buttons: [ 'copy', 'excel',]
+            } );
+         
+            table.buttons().container()
+                .appendTo( $('div.eight.column:eq(0)', table.table().container()) );
+        } );
+</script>
+        
+
+<br>
+
+<div id="container" style="width: 1200px; height: 400px; margin: 0 auto">
+
 <script src="https://code.highcharts.com/highcharts.src.js"></script>
 <script>
     Highcharts.chart('container', {
@@ -32,6 +69,7 @@ Wheat embryo expression
         series: {{ exp_values| safe }}
   });
 </script>
+</div>
 
 {% else %}
 <hr>

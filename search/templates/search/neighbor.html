@@ -15,9 +15,56 @@ Wheat embryo expression
 {% if neighbor_inf.exists %}
 
 
-<section id="gene-neighbor">
-    {% render_table neighbor_table %}
-</section>
+<div class="container" id="neighbor-table">
+        <table id="example" class="ui celled table" style="width:100%">
+        <thead>
+            <tr>
+                <th>LncRNA gene</th>
+                <th>LncRNA transcript</th>
+                <th>PartnerRNA gene</th>
+                <th>PartnerRNA transcript</th>
+                <th>Direction</th>
+                <th>Generic type</th>
+                <th>Distance</th>
+                <th>Subtype</th>
+                <th>Location</th>
+                <th>PCC</th>
+                <th>PCC-Pvalue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for nb_i in neighbor_inf %}
+            <tr>
+            <td><a href="{{ nb_i.lncRNA_gene.get_absolute_url }}">{{ nb_i.lncRNA_gene }}</a></td>
+            <td><a href="{{ nb_i.lncRNA_transcript.get_absolute_url }}">{{ nb_i.lncRNA_transcript }}</a></td>
+            <td><a href="{{ nb_i.partnerRNA_gene.get_absolute_url }}">{{ nb_i.partnerRNA_gene }}</a></td>
+            <td><a href="{{ nb_i.lncRNA_transcript.get_absolute_url }}">{{ nb_i.partnerRNA_transcript }}</a></td>
+            <td>{{ nb_i.direction }}</td>
+            <td>{{ nb_i.generic_type }}</td>
+            <td>{{ nb_i.distance }}</td>
+            <td>{{ nb_i.subtype }}</td>
+            <td>{{ nb_i.location }}</td>
+            <td>{{ nb_i.pcc }}</td>
+            <td>{{ nb_i.pcc_pva }}</td>            
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <script>
+            $(document).ready(function() {
+                var table = $('#example').DataTable( {
+                    lengthChange: false,
+                    buttons: [ 'copy', 'excel', ]
+                } );
+             
+                table.buttons().container()
+                    .appendTo( $('div.eight.column:eq(0)', table.table().container()) );
+            } );
+    </script>
+
+<br>
 
 <div id="container" style="width: 1200px; height: 400px; margin: 0 auto"></div>
 <script src="https://code.highcharts.com/highcharts.src.js"></script>

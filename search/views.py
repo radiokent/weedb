@@ -2,14 +2,12 @@ import re
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from .tables import SearchForm
 from annotation.models import GeneExp, Gene, GeneNeighbor, Transcript, FunctionAnn
-from annotation.tables import ExpTable, GeneNeighborTable, GeneAnnTable
-from django_tables2 import RequestConfig
-from django_tables2.export.export import TableExport
 from django.db.models import Q
 from collections import defaultdict
 
 
 GENE_PATTERN = re.compile(r'TraesCS(\w+)1G(\w+)')
+GENE_NUM_UP = 100
 
 def iwgsc1to2(gene_id):
     """
@@ -55,6 +53,8 @@ def result_view(request, db):
     if form.is_valid():
         cd = form.cleaned_data
         gene_list = [iwgsc1to2(each.strip()) for each in cd['genes'].split('\n')]
+        if len(gene_list) > GENE_NUM_UP:
+            return search_view(request, warning=f'Most {GENE_NUM_UP} query genes are allowed!')
         request.session['gene_list'] = gene_list
     elif 'gene_list' in request.session:
         pass
@@ -63,15 +63,12 @@ def result_view(request, db):
     if db == 'exp':
         gene_exp = GeneExp.objects.filter(
             gene_id__gene_id__in=request.session['gene_list'])
-        exp_table = ExpTable(gene_exp)
-        RequestConfig(request, paginate={"per_page": 10}).configure(exp_table)
         gene_obj = Gene.objects.filter(
             gene_id__in=request.session['gene_list'])
         tissues, exp_values = exp2chart(gene_obj)
 
         return render(
             request, 'search/results.html', {
-                'exp_table': exp_table,
                 'gene_exp': gene_exp,
                 'tissues': tissues,
                 'exp_values': exp_values,
@@ -80,7 +77,6 @@ def result_view(request, db):
         neighbor_inf = GeneNeighbor.objects.filter(
             Q(lncRNA_gene__gene_id__in=request.session['gene_list'])
             | Q(partnerRNA_gene__gene_id__in=request.session['gene_list']))
-        neighbor_table = GeneNeighborTable(neighbor_inf)
         if neighbor_inf.exists():
             mrna_genes = {nb.partnerRNA_gene for nb in neighbor_inf}
             lncrna_genes = {nb.lncRNA_gene for nb in neighbor_inf}
@@ -90,13 +86,9 @@ def result_view(request, db):
         else:
             tissues = []
             exp_values = []
-        RequestConfig(request, paginate={
-            "per_page": 10
-        }).configure(neighbor_table)
         query_id = ' '.join(request.session['gene_list'])
         return render(
             request, 'search/neighbor.html', {
-                'neighbor_table': neighbor_table,
                 'neighbor_inf': neighbor_inf,
                 'gene_name': query_id,
                 'tissues': tissues,
@@ -105,10 +97,7 @@ def result_view(request, db):
     elif db == 'ann':
         ann_inf = FunctionAnn.objects.filter(
             gene_id__gene_id__in=request.session['gene_list'])
-        ann_table = GeneAnnTable(ann_inf)
-        RequestConfig(request, paginate={"per_page": 10}).configure(ann_table)
         return render(request, 'search/annotation.html', {
-            'ann_table': ann_table,
             'ann_inf': ann_inf,
         })
     else:
@@ -127,13 +116,10 @@ def tr_detail(request, tr_id):
 
 def single_gene_exp_view(request, gene_id):
     gene_exp = GeneExp.objects.filter(gene_id__gene_id=gene_id)
-    exp_table = ExpTable(gene_exp)
     gene_obj = Gene.objects.filter(gene_id=gene_id)
     tissues, exp_values = exp2chart(gene_obj)
-    RequestConfig(request, paginate={"per_page": 10}).configure(exp_table)
     return render(
         request, 'search/results.html', {
-            'exp_table': exp_table,
             'gene_exp': gene_exp,
             'tissues': tissues,
             'exp_values': exp_values,
@@ -145,17 +131,14 @@ def search_neighbor(request, query_id):
         Q(lncRNA_gene__gene_id=query_id) | Q(partnerRNA_gene__gene_id=query_id)
         | Q(lncRNA_transcript__tr_id=query_id)
         | Q(partnerRNA_transcript__tr_id=query_id))
-    neighbor_table = GeneNeighborTable(neighbor_inf)
     if neighbor_inf.exists():
         mrna_genes = {nb.partnerRNA_gene for nb in neighbor_inf}
         lncrna_genes = {nb.lncRNA_gene for nb in neighbor_inf}
         tissues, mrna_exp = exp2chart(mrna_genes, color='#058DC7')
         _, lncrna_exp = exp2chart(lncrna_genes, color='red')
         exp_values = mrna_exp + lncrna_exp
-    RequestConfig(request, paginate={"per_page": 10}).configure(neighbor_table)
     return render(
         request, 'search/neighbor.html', {
-            'neighbor_table': neighbor_table,
             'neighbor_inf': neighbor_inf,
             'gene_name': query_id,
             'tissues': tissues,

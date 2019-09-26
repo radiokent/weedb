@@ -11,9 +11,49 @@ Wheat embryo expression
 {% if ann_inf.exists %}
 
 <br>
-<section id="gene-ann">
-    {% render_table ann_table %}
-</section>
+
+<div class="container" id="exp-table">
+        <table id="example" class="ui celled table" style="width:100%">
+        <thead>
+            <tr>
+                <th>Gene-ID</th>
+                <th>Transcript-ID</th>
+                <th>Is-Repr</th>
+                <th>Blast-Hit-Accession</th>
+                <th>Human-Readable-Description</th>
+                <th>Pfam-Description</th>
+                <th>Interpro-Description</th>
+                <th>GO-Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ann_i in ann_inf %}
+            <tr>
+            <td><a href="{{ ann_i.gene_id.get_absolute_url }}">{{ ann_i.gene_id }}</a></td>
+            <td><a href="{{ ann_i.tr_id.get_absolute_url }}">{{ ann_i.tr_id }}</a></td>
+            <td>{{ ann_i.is_repr }}</td>
+            <td>{{ ann_i.blast_hit }}</td>
+            <td>{{ ann_i.description }}</td>
+            <td>{{ ann_i.pfam }}</td>
+            <td>{{ ann_i.interpro }}</td>
+            <td>{{ ann_i.go }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    
+    <script>
+            $(document).ready(function() {
+                var table = $('#example').DataTable( {
+                    lengthChange: false,
+                    buttons: [ 'copy', 'excel']
+                } );
+             
+                table.buttons().container()
+                    .appendTo( $('div.eight.column:eq(0)', table.table().container()) );
+            } );
+    </script>
 
 {% else %}
 <hr>
