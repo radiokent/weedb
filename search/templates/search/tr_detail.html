@@ -9,7 +9,7 @@ Gene detail
     <table class="table table-borderless" width='50%'>
         <thead>
             <tr>
-                <th style="width: 15%"></th>
+                <th style="width: 15%">Transcript Summary</th>
                 <th scope="col" class="col-auto"></th>
             </tr>
         </thead>
@@ -80,6 +80,27 @@ Gene detail
                     {% endif %}
                 </td>
             </tr>
+        </tbody>
+    </table>
+</div>
+
+<div style="width: 700px; margin: 10px;">
+    <iframe src="http://183.223.222.193:4569/jbrowse_20190827/?loc={{ tr_inf.gene_id }}&tracks=protein_coding%2Cprotein_coding%20low-quality%2ClncRNA%2CTUCP" 
+    style="border: 1px solid black"
+    width="800"
+    height="600">
+    </iframe>    
+</div>
+
+<div class="table-responsive">
+    <table class="table table-borderless" width='50%'>
+        <thead>
+            <tr>
+                <th style="width: 15%">Transcript Sequence</th>
+                <th scope="col" class="col-auto"></th>
+            </tr>
+        </thead>
+        <tbody>
             <tr>
                 <th scope="row" class="bg-light">Exon sequence</th>
                 <td style="word-wrap:break-word" class="text-monospace">

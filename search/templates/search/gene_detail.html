@@ -6,11 +6,12 @@ Gene detail
 
 
 {% block content %}
+
 <div class="table-responsive">
     <table class="table table-borderless" width='50%'>
         <thead>
             <tr>
-                <th style="width: 15%"></th>
+                <th style="width: 15%">Gene Summary</th>
                 <th scope="col" class="col-auto"></th>
             </tr>
         </thead>
@@ -79,7 +80,28 @@ Gene detail
                     <strong>{{tr_inf.exp_inf.min_tissue}}</strong>
                 </td>
             </tr>
+        </tbody>
+    </table>
+</div>
+
+<div style="width: 700px; margin: 10px;">
+    <iframe src="http://183.223.222.193:4569/jbrowse_20190827/?loc={{ tr_inf.gene_id }}&tracks=protein_coding%2Cprotein_coding%20low-quality%2ClncRNA%2CTUCP" 
+    style="border: 1px solid black"
+    width="800"
+    height="600">
+    </iframe>    
+</div>
+
+<div class="table-responsive">
+    <table class="table table-borderless" width='50%'>
+        <thead>
             <tr>
+                <th style="width: 15%">Gene Sequence</th>
+                <th scope="col" class="col-auto"></th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
                 <th scope="row" class="bg-light">Representative Exon sequence</th>
                 <td style="word-wrap:break-word" class="text-monospace">
                     {% with tr_inf.repr_tr as repr_tr  %}
@@ -90,16 +112,15 @@ Gene detail
             <tr>
                 {% with tr_inf.repr_tr as repr_tr %}
                 {% if repr_tr.cds_fa.exists %}
-            <tr>
                 <th scope="row" class="bg-light">Representative CDS sequence</th>
                 <td style="word-wrap:break-word" class="text-monospace">
                     {% for seq in repr_tr.cds_fa %}{{seq.seq}}</br>{% endfor %}
                 </td>
-            </tr>
             {% endif %}
             {% endwith %}
             </tr>
         </tbody>
     </table>
 </div>
+
 {% endblock content %}

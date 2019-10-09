@@ -8,6 +8,7 @@ from collections import defaultdict
 
 GENE_PATTERN = re.compile(r'TraesCS(\w+)1G(\w+)')
 GENE_NUM_UP = 100
+TPM_LOWER = 0.0001
 
 def iwgsc1to2(gene_id):
     """
@@ -41,6 +42,8 @@ def exp2chart(gene_obj, color=None):
         for exp_i in gene_i.gene_exp.all():
             tissue = exp_i.tissue
             tpm = exp_i.tpm
+            if tpm < TPM_LOWER:
+                tpm = TPM_LOWER
             if tissue not in tissues:
                 tissues.append(tissue)
             gene_i_exp['data'].append(float(tpm))
