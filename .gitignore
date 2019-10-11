@@ -118,3 +118,6 @@ db.sqlite3
 
 # vscode
 .vscode
+
+# redis
+dump.rdb

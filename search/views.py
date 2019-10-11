@@ -1,5 +1,6 @@
 import re
 from django.shortcuts import render, redirect, HttpResponseRedirect
+from django.core.cache import cache
 from .tables import SearchForm
 from annotation.models import GeneExp, Gene, GeneNeighbor, Transcript, FunctionAnn
 from django.db.models import Q
@@ -60,16 +61,35 @@ def result_view(request, db):
             return search_view(request, warning=f'Most {GENE_NUM_UP} query genes are allowed!')
         request.session['gene_list'] = gene_list
     elif 'gene_list' in request.session:
-        pass
+        gene_list = request.session['gene_list']
     else:
         return search_view(request, warning='Your should submit a gene list first!')
-    if db == 'exp':
+    gene_list_key = frozenset(gene_list)
+    if cache.has_key(gene_list_key):
+        gene_list_inf = cache.get(gene_list_key)
+        gene_exp = gene_list_inf.get('gene_exp')
+        gene_obj = gene_list_inf.get('gene_obj')
+        neighbor_inf = gene_list_inf.get('neighbor_inf')
+        ann_inf = gene_list_inf.get('ann_inf')
+    else:
         gene_exp = GeneExp.objects.filter(
-            gene_id__gene_id__in=request.session['gene_list'])
+            gene_id__gene_id__in=gene_list)
         gene_obj = Gene.objects.filter(
-            gene_id__in=request.session['gene_list'])
+            gene_id__in=gene_list)
+        neighbor_inf = GeneNeighbor.objects.filter(
+            Q(lncRNA_gene__gene_id__in=gene_list)
+            | Q(partnerRNA_gene__gene_id__in=gene_list))
+        ann_inf = FunctionAnn.objects.filter(
+            gene_id__gene_id__in=gene_list)
+        gene_list_inf = {
+            'gene_exp': gene_exp,
+            'gene_obj': gene_obj,
+            'neighbor_inf': neighbor_inf,
+            'ann_inf': ann_inf,
+        }
+        cache.set(gene_list_key, gene_list_inf, 60*15)
+    if db == 'exp':
         tissues, exp_values = exp2chart(gene_obj)
-
         return render(
             request, 'search/results.html', {
                 'gene_exp': gene_exp,
@@ -77,9 +97,6 @@ def result_view(request, db):
                 'exp_values': exp_values,
             })
     elif db == 'nb':
-        neighbor_inf = GeneNeighbor.objects.filter(
-            Q(lncRNA_gene__gene_id__in=request.session['gene_list'])
-            | Q(partnerRNA_gene__gene_id__in=request.session['gene_list']))
         if neighbor_inf.exists():
             mrna_genes = {nb.partnerRNA_gene for nb in neighbor_inf}
             lncrna_genes = {nb.lncRNA_gene for nb in neighbor_inf}
@@ -89,7 +106,7 @@ def result_view(request, db):
         else:
             tissues = []
             exp_values = []
-        query_id = ' '.join(request.session['gene_list'])
+        query_id = ' '.join(gene_list)
         return render(
             request, 'search/neighbor.html', {
                 'neighbor_inf': neighbor_inf,
@@ -98,8 +115,6 @@ def result_view(request, db):
                 'exp_values': exp_values,
             })
     elif db == 'ann':
-        ann_inf = FunctionAnn.objects.filter(
-            gene_id__gene_id__in=request.session['gene_list'])
         return render(request, 'search/annotation.html', {
             'ann_inf': ann_inf,
         })

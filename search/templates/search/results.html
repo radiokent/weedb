@@ -45,85 +45,95 @@ Wheat embryo expression
                 .appendTo( $('div.eight.column:eq(0)', table.table().container()) );
         } );
 </script>
-        
+
+
+
 
 <br>
-<!-- <button id="linear" class="autocompare">linear</button>
-<button id="logscale" class="autocompare">logscale</button> -->
 
-<!-- <button id="linear" type="button" class="btn btn-outline-primary">linear</button>
-<button id="logscale" type="button" class="btn btn-outline-secondary">logscale</button> -->
-<div class="container" id="exp-plot-btn">
-<div class="btn-group btn-group-toggle" data-toggle="buttons">
-    <label class="btn btn-secondary active">
-      <input type="radio" name="options" id="linear" autocomplete="off" checked> Linear
-    </label>
-    <label class="btn btn-secondary">
-      <input type="radio" name="options" id="logscale" autocomplete="off"> Log-scale
-    </label>
-</div>
+<div class="container"><button id="plot-btn" class="btn btn-outline-success">Line Plot</button></div>
+
+<br>
+
+<div id="highcharts-div" class="border" style="width: 1300px; height: 700px; margin: 0 auto; display: none;">
+        <div id="exp-plot-btn" style="width: 1200px; height: 60px; margin: 4px;">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-secondary active">
+                      <input type="radio" name="options" id="linear" autocomplete="off" checked> Linear
+                    </label>
+                    <label class="btn btn-secondary">
+                      <input type="radio" name="options" id="logscale" autocomplete="off"> Log-scale
+                    </label>
+                </div>
+        </div>
+        
+        <div id="highcharts" style="width: 1200px; height: 600px; margin: 0 auto;">
 </div>
 
-<div id="container" style="width: 1200px; height: 600px; margin: 0 auto">
+</div>
 <script>
-    var chart = Highcharts.chart('container', {
-        chart: {
-            type: 'line',
-        },
-        title: {
-            text: 'Gene Expression Across Embryo Development'
-        },
-        xAxis: {
-            categories: {{ tissues| safe }}
-        },
-        yAxis: {
-            title: { text: 'TPM' },
-            min:0.0001,
-            labels: {
-                formatter: function() {
-                    if(this.value === 0.0001){
-                        return 0;
-                    } else {
-                        return this.value;
-                    }
-                }
-            },             
-        },
-        tooltip: {
-            formatter: function(tooltip){
-                if(this.y === 0.0001) {
-                    var exp_val =0;
-                } else {
-                    var exp_val = this.y;
-                }
-                return 'The TPM value for <b>' + this.x +
-                '</b> is <b>' + exp_val + '</b>';
-            }
-        },  
-        series: {{ exp_values| safe }}
-  });
+    var chart;
+     $('#plot-btn').click(function () {
+
+        $('#highcharts-div').show()
+
+        $.ajax({
+            success: function () {
+                
+                chart = Highcharts.chart('highcharts', {
+                    chart: {
+                        type: 'line',
+                    },
+                    title: {
+                        text: 'Gene Expression Across Embryo Development'
+                    },
+                    xAxis: {
+                        categories: {{ tissues| safe }}
+                    },
+                    yAxis: {
+                        title: { text: 'TPM' },
+                        min:0.0001,
+                        labels: {
+                            formatter: function() {
+                                if(this.value === 0.0001){
+                                    return 0;
+                                } else {
+                                    return this.value;
+                                }
+                            }
+                        },      
+                    },
+                    tooltip: {
+                        formatter: function(tooltip){
+                            if(this.y === 0.0001) {
+                                var exp_val =0;
+                            } else {
+                                var exp_val = this.y;
+                            }
+                            return 'The TPM value for <b>' + this.x +
+                            '</b> is <b>' + exp_val + '</b>';
+                        }
+                    },  
+                    series: {{ exp_values| safe }}
+                });
 
 
-$('#linear').change(function () {
-    chart.yAxis[0].update({        
-        type: 'linear',
-    });
-});
-
-$('#logscale').change(function () {
-    chart.yAxis[0].update({
-        type: 'logarithmic',  
-    });
-});
+                $('#linear').change(function () {
+                    chart.yAxis[0].update({        
+                        type: 'linear',
+                    });
+                });
+                
+                $('#logscale').change(function () {
+                    chart.yAxis[0].update({
+                        type: 'logarithmic',  
+                    });
+                });
+            },
+        });
+     });
 
 </script>
-</div>
-
-
-
-
-
-
 
 {% else %}
 <hr>
